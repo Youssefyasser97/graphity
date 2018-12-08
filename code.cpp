@@ -13,22 +13,18 @@ bool LookForward = false;
 bool LookBackward = false;
 
 //Enemies movement variables
-int Enemy1BackForward = 0;		//Flag for Choose if the Enemy moving forward or backward
-int Enemy2BackForward = 0;
-int Enemy3BackForward = 0;
-int Enemy4BackForward = 0;
+int MoveEnemy1X = 5;
+int MoveEnemy2X = 5;
+int MoveEnemy3X = 5;
+int MoveEnemy4X = 12;
 
-float MoveEnemy1X = 5;
-float MoveEnemy2X = 5;
-float MoveEnemy3X = 5;
-float MoveEnemy4X = 12;
+int MoveEnemy1Z = 6;
+int MoveEnemy2Z = 3;
+int MoveEnemy3Z = 9;
+int MoveEnemy4Z = 4;
 
-float MoveEnemy1Z = 6;
-float MoveEnemy2Z = 3;
-float MoveEnemy3Z = 9;
-float MoveEnemy4Z = 4;
+float muhammerX = 15.0;
 
-int RotationAngleEnemi1 = 0;
 GLuint tex;
 char title[] = "3D Model Loader Sample";
 void Anim();
@@ -36,7 +32,7 @@ void Anim();
 GLdouble fovy = 45.0;
 GLdouble aspectRatio = ((GLdouble)WIDTH / (GLdouble)HEIGHT);
 GLdouble zNear = 0.1;
-GLdouble zFar = 100;
+GLdouble zFar = 900;
 
 class Vector
 {
@@ -56,20 +52,21 @@ public:
 	}
 };
 
-Vector Eye(20, 5, 20);
-Vector At(0, 0, 0);
-Vector Up(0, 1, 0);
+Vector Eye(20, 25, -50);
+Vector At(0, -1, -160);
+Vector Up(0, 2, 0);
 
 int cameraZoom = 0;
 
 // Model Variables
 Model_3DS model_house;
 Model_3DS model_tree;
-Model_3DS model_boss;
-Model_3DS model_enemy1;
-Model_3DS model_enemy2;
-Model_3DS model_enemy3;
-Model_3DS model_enemy4;
+Model_3DS model_muhammer;
+Model_3DS model_zombie;
+Model_3DS model_librarian;
+Model_3DS model_dragon;
+
+
 // Textures
 GLTexture tex_ground;
 
@@ -178,13 +175,27 @@ void RenderGround()
 	glBegin(GL_QUADS);
 	glNormal3f(0, 1, 0);	// Set quad normal direction.
 	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
-	glVertex3f(-20, 0, -20);
+	glVertex3f(-40, 0, -40);
 	glTexCoord2f(5, 0);
-	glVertex3f(20, 0, -20);
+	glVertex3f(40, 0, -40);
 	glTexCoord2f(5, 5);
-	glVertex3f(20, 0, 20);
+	glVertex3f(40, 0, 40);
 	glTexCoord2f(0, 5);
-	glVertex3f(-20, 0, 20);
+	glVertex3f(-40, 0, 40);
+	glEnd();
+	glPopMatrix();
+
+		glPushMatrix();
+	glBegin(GL_QUADS);
+	glNormal3f(0, 1, 0);	// Set quad2 normal direction.
+	glTexCoord2f(0, 0);		// Set tex coordinates ( Using (0,0) -> (5,5) with texture wrapping set to GL_REPEAT to simulate the ground repeated grass texture).
+	glVertex3f(-40, 0, -120);
+	glTexCoord2f(5, 0);
+	glVertex3f(40, 0, -120);
+	glTexCoord2f(5, 5);
+	glVertex3f(40, 0, -40);
+	glTexCoord2f(0, 5);
+	glVertex3f(-40, 0, -40);
 	glEnd();
 	glPopMatrix();
 
@@ -192,6 +203,16 @@ void RenderGround()
 
 	glColor3f(1, 1, 1);	// Set material back to white instead of grey used for the ground texture.
 }
+
+void drawWall(double thickness) {
+	glPushMatrix();
+	glTranslated(0.5, 0.5 * thickness, 0.5);
+	glScaled(1.0, thickness, 1.0);
+	glutSolidCube(1);
+	glPopMatrix();
+}
+
+
 
 //=======================================================================
 // Display Function
@@ -239,41 +260,95 @@ void myDisplay(void)
 	if (LookBackward) {
 		glRotated(180, 0, 1, 0);
 	}
-	model_boss.Draw();
-	glPopMatrix();
-	glColor3f(1, 1, 1);
+	//walls for first field
 	glPushMatrix();
+	glTranslated(-40, 0, -40);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
 	glPopMatrix();
 
+	glPushMatrix();
+	glTranslated(40, 0, -40);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
 
 	glPushMatrix();
-	glTranslated(MoveEnemy1X, 0, MoveEnemy1Z);
-	glRotated(RotationAngleEnemi1, 0, 1, 0);
+	glTranslated(-40, 0, -40);
+	glRotated(90, 0.0, 1.0, 0.0); 
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-40, 0, 40);
+	glRotated(90, 0.0, 1.0, 0.0);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+	//-------------------------------------
+
+	//walls for 2nd field
+	glPushMatrix();
+	glTranslated(-40, 0, -120);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(40, 0, -120);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-40, 0, -120);
+	glRotated(90, 0.0, 1.0, 0.0);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslated(-40, 0, -40);
+	glRotated(90, 0.0, 1.0, 0.0);
+	glScaled(1.0, 7.0, 80.0);
+	drawWall(0.7);
+	glPopMatrix();
+	//-------------------------------------
+
+	// Draw muhammer model
+	glPushMatrix();
+	glTranslatef(muhammerX, 0, 0);
+	//glRotatef(90.f, 1, 0, 0);
+	model_muhammer.Draw();
+	glPopMatrix();
+
+	// Draw zombie model
+	glPushMatrix();
+	glTranslatef(-5, 0, 3);
 	glScaled(0.07, 0.07, 0.07);
-	model_enemy1.Draw();
+	//glRotatef(90.f, 1, 0, 0);
+	model_zombie.Draw();
+	glPopMatrix();
+
+	// Draw librarian model
+	glPushMatrix();
+	glTranslatef(-5, 0, 3);
+	glScaled(0.05, 0.05, 0.05);
+	//glRotatef(90.f, 1, 0, 0);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	model_librarian.Draw();
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslated(MoveEnemy2X, 0, MoveEnemy2Z);
-	glScaled(0.07, 0.07, 0.07);
-	model_enemy2.Draw();
+	glTranslatef(25, 0, 3);
+	glScaled(4.0, 4.0, 4.0);
+	//glRotatef(90.f, 1, 0, 0);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glRotated(90, 0, 1, 0);
+	model_dragon.Draw();
 	glPopMatrix();
 
-	glPushMatrix();
-	glTranslated(MoveEnemy3X, 0, MoveEnemy3Z);
-	glScaled(0.07, 0.07, 0.07);
-	model_enemy3.Draw();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslated(MoveEnemy4X, 0, MoveEnemy4Z);
-	glScaled(0.07, 0.07, 0.07);
-	model_enemy4.Draw();
-	glPopMatrix();
-
-
-	//sky box
-	glPushMatrix();
 
 	GLUquadricObj * qobj;
 	qobj = gluNewQuadric();
@@ -282,7 +357,7 @@ void myDisplay(void)
 	glBindTexture(GL_TEXTURE_2D, tex);
 	gluQuadricTexture(qobj, true);
 	gluQuadricNormals(qobj, GL_SMOOTH);
-	gluSphere(qobj, 100, 100, 100);
+	gluSphere(qobj, 400, 400, 400);
 	gluDeleteQuadric(qobj);
 
 
@@ -366,13 +441,13 @@ void myMotion(int x, int y)
 
 	if (cameraZoom - y > 0)
 	{
-		Eye.x += -0.1;
-		Eye.z += -0.1;
+		//Eye.x += -0.1;
+		Eye.z += -1;
 	}
 	else
 	{
-		Eye.x += 0.1;
-		Eye.z += 0.1;
+		//Eye.x += 0.1;
+		Eye.z += 1;
 	}
 
 	cameraZoom = y;
@@ -387,21 +462,7 @@ void myMotion(int x, int y)
 	glutPostRedisplay();	//Re-draw scene 
 }
 void Anim() {
-	if (Enemy1BackForward == 0)
-		MoveEnemy1Z += 0.1;
-	else
-		MoveEnemy1Z -= 0.1;
-
-	if (MoveEnemy1Z >= 17) {
-		Enemy1BackForward = 1;
-		RotationAngleEnemi1 = -180;
-	}
-	else if (MoveEnemy1Z <= -17) {
-		Enemy1BackForward = 0;
-		RotationAngleEnemi1 = 0;
-	}
-	printf("%f\n", MoveEnemy1Z);
-
+	muhammerX -= 0.01;
 	glutPostRedisplay();
 }
 
@@ -451,12 +512,11 @@ void LoadAssets()
 {
 	// Loading Model files
 	model_house.Load("Models/house/house.3DS");
-	model_tree.Load("Models/Tree/Tree1.3ds");
-	model_boss.Load("Models/Muham/Muhammer.3DS");
-	model_enemy1.Load("Models/femalezombie/Zumbi_Female.3ds");
-	//model_enemy2.Load("Models/femalezombie/Zumbi_Female.3ds");
-	//model_enemy3.Load("Models/femalezombie/Zumbi_Female.3ds");
-	//model_enemy4.Load("Models/femalezombie/Zumbi_Female.3ds");
+	model_tree.Load("Models/tree/Tree1.3ds");
+	model_muhammer.Load("Models/muhammer/Muhammer.3ds");
+	model_zombie.Load("Models/femalezombie/Zumbi_Female.3ds");
+	model_librarian.Load("Models/librarian/Librarian.3ds");
+	model_dragon.Load("Models/blooddragon/blooddragon.3ds");
 
 	//model_wolf.Load("Models/wolf/wolf/wolf.3ds");
 	// Loading texture files
